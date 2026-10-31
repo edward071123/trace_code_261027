@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+
+import jakarta.transaction.Transactional;
 import student.ed.tracecode.constant.OrderStatus;
 import student.ed.tracecode.entity.Book;
 import student.ed.tracecode.entity.BookOrder;
@@ -25,11 +27,12 @@ public class OrderService {
         this.orderRepository = orderRepository;
     }
 
+    @Transactional
     // BUG: 跨「扣庫存 + 新增訂單」的操作缺少 @Transactional。
     public BookOrder placeOrder(Long memberId, Long bookId, int quantity, boolean simulateFailure) {
         // BUG: quantity == 0 也會通過。
-        if (quantity < 0) {
-            throw new IllegalArgumentException("quantity must be positive");
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("quantity must be > 0");
         }
 
         Member member = memberRepository.findById(memberId).orElseThrow();
@@ -39,11 +42,11 @@ public class OrderService {
         }
 
         // BUG: 下單應扣庫存，不是增加庫存。
-        book.setStock(book.getStock() + quantity);
+        book.setStock(book.getStock() - quantity);
         bookRepository.save(book);
 
         // BUG: 金額應為單價乘以數量。
-        int amount = book.getPrice() + quantity;
+        int amount = book.getPrice() * quantity;
         BookOrder order = orderRepository.save(new BookOrder(
                 "B-" + UUID.randomUUID(), book, member, quantity, amount));
 

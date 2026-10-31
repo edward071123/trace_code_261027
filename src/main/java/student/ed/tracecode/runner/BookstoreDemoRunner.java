@@ -52,7 +52,7 @@ public class BookstoreDemoRunner implements CommandLineRunner {
                 System.out.println("price = " + bookRepository.findById(101L).orElseThrow().getPrice()));
         check("03 active + stock query", () -> printBooks(bookRepository.findSellableBooks()));
         check("04 keyword contains search", () -> printBooks(bookQueryService.search("Spring")));
-        check("05 page 1, size 2", () -> printBooks(bookQueryService.findPage(1, 2)));
+        check("05 page 2, size 2", () -> printBooks(bookQueryService.findPage(2, 2)));
         check("06 member 2 order history", () -> printOrders(orderService.findMemberHistory(2L)));
         check("07 amount snapshot", () -> {
             BookOrder order = orderService.placeOrder(1L, 103L, 2, false);
@@ -63,7 +63,11 @@ public class BookstoreDemoRunner implements CommandLineRunner {
                 System.out.println("book 103 stock = " + bookRepository.findById(103L).orElseThrow().getStock()));
         check("10 rollback all writes", () -> {
             long before = orderRepository.count();
-            try { orderService.placeOrder(1L, 104L, 1, true); } catch (RuntimeException ignored) { }
+            try {
+                orderService.placeOrder(1L, 104L, 1, true);
+            } catch (RuntimeException ignored) {
+                
+            }
             System.out.println("order count before/after = " + before + "/" + orderRepository.count());
         });
         check("bonus sold status + paid revenue", () -> {
