@@ -14,6 +14,7 @@ public class BookQueryService {
 
     // BUG: constructor injection 收到 repository，卻沒有指定給欄位。
     public BookQueryService(BookRepository bookRepository) {
+        this.bookRepository = bookRepository;
     }
 
     public List<Book> findSellableBooks() {
@@ -25,7 +26,12 @@ public class BookQueryService {
         return bookRepository.searchByName(keyword);
     }
 
+    // offset: 跳過前面幾筆(偏移量)
     public List<Book> findPage(int page, int size) {
-        return bookRepository.findPage(page, size);
+        int offset = (page - 1) * size;
+        //       0  =  (1 - 1) * 2;
+        //       2  =  (2 - 1) * 2;
+        //       4  =  (3 - 1) * 2;
+        return bookRepository.findPage(offset, size);
     }
 }

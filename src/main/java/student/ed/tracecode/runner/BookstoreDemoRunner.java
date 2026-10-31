@@ -28,7 +28,26 @@ public class BookstoreDemoRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        check("01 constructor injection", () -> printBooks(bookQueryService.findSellableBooks()));
+        // java lambda 多行寫法
+        check("01 constructor injection", () -> {
+            List<Book> books = bookQueryService.findSellableBooks();
+            printBooks(books);
+        });
+
+        // java lambda 單行寫法
+        // check("01 constructor injection", () -> printBooks(bookQueryService.findSellableBooks()));
+
+        // // java lambda 初始來源: 匿名類別只有一個需要實作的method
+        // Runnable r1 = new Runnable(){
+        //     @Override 
+        //     public void run() {
+        //         List<Book> books = bookQueryService.findSellableBooks();
+        //         printBooks(books);
+        //     }
+        // };
+        // check("01 constructor injection", r1);
+
+
         check("02 seed data: Java 入門 price", () ->
                 System.out.println("price = " + bookRepository.findById(101L).orElseThrow().getPrice()));
         check("03 active + stock query", () -> printBooks(bookRepository.findSellableBooks()));
@@ -51,6 +70,7 @@ public class BookstoreDemoRunner implements CommandLineRunner {
             System.out.println("book 101 sold = " + orderService.isSold(101L));
             System.out.println("paid revenue = " + orderService.paidRevenue());
         });
+
     }
 
     private void check(String title, Runnable action) {

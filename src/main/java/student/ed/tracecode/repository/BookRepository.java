@@ -9,13 +9,13 @@ import student.ed.tracecode.entity.Book;
 
 public interface BookRepository extends JpaRepository<Book, Long> {
     // BUG: active 與有庫存應同時成立。
-    @Query("select b from Book b where b.status = 1 or b.stock > 0 order by b.id")
+    @Query("select b from Book b where b.status = 1 and b.stock > 0 order by b.id")
     List<Book> findSellableBooks();
 
-    @Query("select b from Book b where lower(b.name) like lower(:keyword) order by b.id")
+    @Query("select b from Book b where lower(b.name) like lower(concat('%', :keyword, '%')) order by b.id")
     List<Book> searchByName(@Param("keyword") String keyword);
 
-    // BUG: page 是頁碼，不是 SQL offset。
-    @Query(value = "select * from books order by id limit :size offset :page", nativeQuery = true)
-    List<Book> findPage(@Param("page") int page, @Param("size") int size);
+    // offset: 跳過前面幾筆(偏移量), limit: 取幾筆
+    @Query(value = "select * from books order by id limit :size offset :offset", nativeQuery = true)
+    List<Book> findPage(@Param("offset") int offset, @Param("size") int size);
 }
